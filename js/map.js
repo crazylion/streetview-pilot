@@ -1,4 +1,4 @@
-f(typeof console === "undefined") {
+if(typeof console === "undefined") {
     console = { log: function() { } };
 }
   
