@@ -1,4 +1,9 @@
-  var directionDisplay;
+f(typeof console === "undefined") {
+    console = { log: function() { } };
+}
+  
+
+var directionDisplay;
   var directionsService = new google.maps.DirectionsService();
   var map;
   var start_location='台北車站';
