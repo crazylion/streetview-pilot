@@ -75,7 +75,7 @@ function autopilot () {
                 });
             }
             */
-            var center =new google.maps.LatLng(position.path[i].lat(),position.path[i].lng());
+            var center =route_data[route_index];
             panorama.setPosition(center); 
             panorama.setPov(panorama.getPov());
             map.setCenter(new google.maps.LatLng(position.start_location.lat(),position.start_location.lng())); 
