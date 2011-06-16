@@ -61,6 +61,7 @@ function autopilot () {
         }else{
         
             var position = route_data[route_index];
+            /*
             for(var i=0;i<position.path.length;i++){
                 console.log(i); 
                 var center =new google.maps.LatLng(position.path[i].lat(),position.path[i].lng());
@@ -71,9 +72,14 @@ function autopilot () {
                     } else {
                     }
 
-                    map.setCenter(new google.maps.LatLng(position.start_location.lat(),position.start_location.lng())); 
                 });
             }
+            */
+            var center =new google.maps.LatLng(position.path[i].lat(),position.path[i].lng());
+            panorama.setPosition(center); 
+            panorama.setPov(panorama.getPov());
+            map.setCenter(new google.maps.LatLng(position.start_location.lat(),position.start_location.lng())); 
+            route_index++;
             setTimeout(go,1000);        
         }
     }
