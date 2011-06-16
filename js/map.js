@@ -74,7 +74,7 @@ function autopilot () {
                     map.setCenter(new google.maps.LatLng(position.start_location.lat(),position.start_location.lng())); 
                 });
             }
-            //setTimeout(go,1000);        
+            setTimeout(go,1000);        
         }
     }
 
