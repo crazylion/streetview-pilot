@@ -13,11 +13,12 @@ var directionDisplay;
 
   var route_data;
   var route_index=0;
+  var path_index=0; //route裡面還有path 這邊用來記錄path的index
   var current_heading=0;
   var directions_data=null;
 var sv = new google.maps.StreetViewService();
 var panorama = null;
-
+var all_route_data=[];//所有的路線資料，先跑過一次記錄
     function auto_run (links) {
     }
 
@@ -54,66 +55,42 @@ function autopilot () {
     var length = route_data.length;
 
     function go(){
-        if(route_index>=length){
-            //clearTimeout(handle);
-            //handle=null;
-            return ;
-        }else{
-        
+        console.log('route_index=%s',route_index);
+        console.log('path_index=%s',path_index);
+        if (route_index >=length) {
+            
+        } else {
+
             var position = route_data[route_index];
-            /*
-            for(var i=0;i<position.path.length;i++){
-                console.log(i); 
-                var center =new google.maps.LatLng(position.path[i].lat(),position.path[i].lng());
-                sv.getPanoramaByLocation(center, 50,function(data,status){
+            if (path_index >= position.path.length) {
+               path_index=0; 
+               route_index++;
+                    setTimeout(go,2000);
+            } else {
+                var path = position.path[path_index];
+                var loc = new google.maps.LatLng(path.lat(),path.lng());
+                sv.getPanoramaByLocation(loc, 50,function(data,status){
                     if (status == google.maps.StreetViewStatus.OK) {
-                        panorama.setPosition(data.location.latLng); 
-                        panorama.setPov(panorama.getPov());
+                        //console.log()
+                        panorama.setPosition(loc);
+                        console.log(data);
+                        console.log(data.links[0].heading);
+                        var pov=panorama.getPov();
+                        pov.heading=data.links[0].heading;
+                        panorama.setPov(pov);
+                        map.setCenter(loc);
                     } else {
                     }
-
+                    path_index++;
+                    setTimeout(go,2000);
                 });
             }
-            */
-            var center =new google.maps.LatLng(position.start_location.lat(),position.start_location.lng());
-            panorama.setPosition(center); 
-            panorama.setPov(panorama.getPov());
-            map.setCenter(center); 
-            route_index++;
-            setTimeout(go,2500);        
         }
     }
 
     go();
-    /*
-       var handle=setInterval(function() {
-       if(route_index>=length){
-       clearInterval(handle);
-       length=null;
-            return ;
-        }
-        var position = route_data[route_index];
-        console.log(position);
-        //一段一段來
-        for(var i=0;i<position.path.length;i++){
-           console.log(i); 
-            var center =new google.maps.LatLng(position.path[i].lat(),position.path[i].lng());
-            sv.getPanoramaByLocation(center, 50,function(data,status){
-                if (status == google.maps.StreetViewStatus.OK) {
-                    panorama.setPosition(data.location.latLng); 
-                } else {
-                }
-
-                map.setCenter(new google.maps.LatLng(position.start_location.lat(),position.start_location.lng())); 
-            });
-        }
-
         
-        route_index++;
-        console.log(route_index);
         
-    },2000);
-    */
 }
 
 //計算路線
