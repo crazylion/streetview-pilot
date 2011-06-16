@@ -35,10 +35,10 @@ var panorama = null;
     map.setStreetView(panorama);
     google.maps.event.addListener(panorama, 'links_changed', function() {        
         var links =  panorama.getLinks();
-       console.log(panorama); 
+       //console.log(panorama); 
         //計算角度
         var current_position = panorama.getPosition();
-        var current_route_data= route_data[0];console.log(route_data[0]);
+        var current_route_data= route_data[0];//console.log(route_data[0]);
         var next_route_data= route_data[1];console.log(route_data[1]);
 
         for(var i  in links){
@@ -75,12 +75,12 @@ function autopilot () {
                 });
             }
             */
-            var center =route_data[route_index];
+            var center =new google.maps.LatLng(position.start_location.lat(),position.start_location.lng());
             panorama.setPosition(center); 
             panorama.setPov(panorama.getPov());
-            map.setCenter(new google.maps.LatLng(position.start_location.lat(),position.start_location.lng())); 
+            map.setCenter(center); 
             route_index++;
-            setTimeout(go,1000);        
+            setTimeout(go,2500);        
         }
     }
 
@@ -129,7 +129,7 @@ function calcRoute() {
         if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
             route_data=response.routes[0].legs[0].steps;
-            console.log(response);
+        //    console.log(response);
             start_pos = response.routes[0].legs[0].start_location;
             setupStreetView(start_pos);
             setTimeout(function(){
