@@ -40,17 +40,19 @@ var all_route_data=[];//所有的路線資料，先跑過一次記錄
         //計算角度
         var current_position = panorama.getPosition();
         var current_route_data= route_data[0];//console.log(route_data[0]);
-        var next_route_data= route_data[1];console.log(route_data[1]);
+        var next_route_data= route_data[1];//console.log(route_data[1]);
 
         for(var i  in links){
             var link =links[i];
-            console.log(link);
+            //console.log(link);
         }
         //route_index++;
     });
     }
 
 //導航
+var next_point_lat=0;
+var next_point_lon=0;
 function autopilot () {
     var length = route_data.length;
 
@@ -68,22 +70,44 @@ function autopilot () {
                     setTimeout(go,2000);
             } else {
                 var path = position.path[path_index];
+                var next_path=null;
+                if (path_index<position.path.length-1) {
+                    
+                    next_path= position.path[path_index+1];
+                } else {
+                    next_path = route_data[route_index+1].path[0];
+                }
+                //算出方程式
+                var m = (next_path.lat()-path.lat())/(next_path.lng()-path.lng());
+                console.log('current x=%s,y=%s',path.lng(),path.lat());
+                for(start_x=path.lng();start_x<=next_path.lng();start_x+=0.0001){
+                     var y =m*(start_x-path.lng())+path.lat();
+                     console.log('m=%s,x=%s,y=%s',m,start_x,y);
+                        map.setCenter(new google.maps.LatLng(y,start_x));
+                
+                }
+
+/*
                 var loc = new google.maps.LatLng(path.lat(),path.lng());
                 sv.getPanoramaByLocation(loc, 50,function(data,status){
                     if (status == google.maps.StreetViewStatus.OK) {
                         //console.log()
                         panorama.setPosition(loc);
-                        console.log(data);
-                        console.log(data.links[0].heading);
+                    //    console.log(data);
+                     //   console.log(data.links[0].heading);
                         var pov=panorama.getPov();
                         pov.heading=data.links[0].heading;
                         panorama.setPov(pov);
                         map.setCenter(loc);
                     } else {
                     }
+                    map.setCenter(loc);
+                    last_point_lat=path.lat();
+                    last_point_lon=path.lon();
                     path_index++;
                     setTimeout(go,2000);
                 });
+                */
             }
         }
     }
@@ -106,7 +130,7 @@ function calcRoute() {
         if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
             route_data=response.routes[0].legs[0].steps;
-        //    console.log(response);
+       //    console.log(response);
             start_pos = response.routes[0].legs[0].start_location;
             setupStreetView(start_pos);
             setTimeout(function(){
