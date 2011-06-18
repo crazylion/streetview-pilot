@@ -19,8 +19,7 @@ var directionDisplay;
 var sv = new google.maps.StreetViewService();
 var panorama = null;
 var all_route_data=[];//所有的路線資料，先跑過一次記錄
-    function auto_run (links) {
-    }
+var current_aY=0; //與正北的夾角
 
 
     function setupStreetView (start) {
@@ -44,6 +43,18 @@ var all_route_data=[];//所有的路線資料，先跑過一次記錄
 
         for(var i  in links){
             var link =links[i];
+            console.log('link %s heading=%s',i,link.heading);
+            console.log('current_aY=%s',current_aY);
+            if (Math.abs(current_aY-link.heading)<5) {
+                console.log('go:%s',i);
+                var pops = panorama.getPov();
+                pops.heading = link.heading;
+                panorama.setPano(link.pano);
+                map.panTo(link.location);
+                break;
+                
+            } else {
+            }
             //console.log(link);
         }
         //route_index++;
@@ -56,9 +67,64 @@ var next_point_lon=0;
 function autopilot () {
     var length = route_data.length;
 
+    $('#map_canvas').bind('start.step',function(event,data) {
+      console.log(data);  
+      var x=data.start_lon;
+      function start_step() {
+          if (x>=data.end_lon) {
+              return;
+              
+          } else {
+                var y =data.m*(x-data.start_lon)+data.start_lat;
+                console.log(x,y);
+                x+=data.step;
+                var loc = new google.maps.LatLng(y,x);
+                var xL = Math.abs(data.start_lon-data.end_lon);
+                var yL = Math.abs(data.start_lat-data.end_lat);
+                var aX = Math.atan(yL/xL)* 180/Math.PI;
+                var aY=aX+90;
+                console.log('aY=%s',aY);
+                sv.getPanoramaByLocation(loc, 2,function(data,status){
+                    if (status == google.maps.StreetViewStatus.OK) {
+                        //console.log()
+                    //    console.log(data);
+                        
+                        var pov=panorama.getPov();
+                        for(var i=0;i<data.links.length;i++){
+                            if (Math.abs(data.links[i].heading -  aY)<5) {
+                                current_aY=aY;
+                                console.log('current_aY=%s,aY=%s',current_aY,aY);
+                                //panorama.setPosition(loc);
+                                var pov = panorama.getPov();
+                                pov.heading = data.links[i].heading;
+                                panorama.setPano(data.links[i].pano);
+                                panorama.setPov(pov);
+                                
+                                break;
+                            
+                            }
+                            
+                        }
+                    } else {
+                    }
+                    map.panTo(loc);
+      //              setTimeout(start_step,2000);
+                });
+          }
+      };
+
+     start_step();
+
+      //for(;x<=data.end_lon;x+=data.step){
+          //console.log('m=%s,x=%s,y=%s',m,start_x,y);
+
+      //}
+    });
+
+
     function go(){
-        console.log('route_index=%s',route_index);
-        console.log('path_index=%s',path_index);
+//         console.log('route_index=%s',route_index);
+//         console.log('path_index=%s',path_index);
         if (route_index >=length) {
             
         } else {
@@ -81,17 +147,20 @@ function autopilot () {
                 var m = (next_path.lat()-path.lat())/(next_path.lng()-path.lng());
                 console.log('current x=%s,y=%s',path.lng(),path.lat());
                 var step = 0.0001;
-                 if (path.lng()-next_path.lng()<0) {
+                 if (path.lng()-next_path.lng()>0) {
                      step = -1 * step; 
                      
                  } 
-
-                for(start_x=path.lng();start_x<=next_path.lng();start_x+=step){
-                     var y =m*(start_x-path.lng())+path.lat();
-                     console.log('m=%s,x=%s,y=%s',m,start_x,y);
-                        map.setCenter(new google.maps.LatLng(y,start_x));
-                
-                }
+                 $('#map_canvas').trigger('start.step',{
+                    start_lon:path.lng(),
+                     end_lon: next_path.lng(),
+                     m: m,
+                     start_lat: path.lat(),
+                     end_lat: next_path.lat(),
+                     step:step
+                 });
+/*
+                */
 
 /*
                 var loc = new google.maps.LatLng(path.lat(),path.lng());
@@ -136,7 +205,6 @@ function calcRoute() {
         if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
             route_data=response.routes[0].legs[0].steps;
-       //    console.log(response);
             start_pos = response.routes[0].legs[0].start_location;
             setupStreetView(start_pos);
             setTimeout(function(){
