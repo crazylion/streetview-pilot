@@ -68,7 +68,7 @@ function pilot(){
     if (route_index >=route_data.length) {
 
     } else {
-
+        $('tr[jsinstance='+route_index+']').css('background-color','#333');
         var position = route_data[route_index];
         if (path_index >= position.path.length) {
             path_index=0; 
@@ -125,6 +125,7 @@ function calcRoute(){
         if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
             route_data=response.routes[0].legs[0].steps;
+            console.log(route_data);
             start_pos = response.routes[0].legs[0].start_location;
             setTimeout(function(){
                 map.setZoom(19);
