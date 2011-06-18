@@ -80,7 +80,13 @@ function autopilot () {
                 //算出方程式
                 var m = (next_path.lat()-path.lat())/(next_path.lng()-path.lng());
                 console.log('current x=%s,y=%s',path.lng(),path.lat());
-                for(start_x=path.lng();start_x<=next_path.lng();start_x+=0.0001){
+                var step = 0.0001;
+                 if (path.lng()-next_path.lng()<0) {
+                     step = -1 * 0.0001
+                     
+                 } 
+
+                for(start_x=path.lng();start_x<=next_path.lng();start_x+=step){
                      var y =m*(start_x-path.lng())+path.lat();
                      console.log('m=%s,x=%s,y=%s',m,start_x,y);
                         map.setCenter(new google.maps.LatLng(y,start_x));
