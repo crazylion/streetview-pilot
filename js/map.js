@@ -82,7 +82,7 @@ function autopilot () {
                 console.log('current x=%s,y=%s',path.lng(),path.lat());
                 var step = 0.0001;
                  if (path.lng()-next_path.lng()<0) {
-                     step = -1 * 0.0001
+                     step = -1 * step; 
                      
                  } 
 
