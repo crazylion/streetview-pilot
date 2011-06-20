@@ -5,11 +5,14 @@ if(typeof console === "undefined") {
   var start_location='台北車站';
   var end_location ='日本';
   var directionsService = new google.maps.DirectionsService();
+  var streetviewService = new google.maps.StreetViewService();
   var route_data;
   var route_index=0; //現在跑到第幾個階段
   var path_index=0; //route裡面還有path 這邊用來記錄path的index
   var panorama = null;
   var is_setup_streetview=false;
+  var is_running = false;  //設定是否有在跑，因為 links_changed 事件如果在沒有location的地方不會觸發
+  var is_links_change=false;
 var current_aY=0; //與正北的夾角
 
 
@@ -25,7 +28,11 @@ var current_aY=0; //與正北的夾角
       };
       panorama = new  google.maps.StreetViewPanorama(document.getElementById("pano"),panoramaOptions);
       map.setStreetView(panorama);
+
+
       google.maps.event.addListener(panorama, 'links_changed', function() {        
+          is_links_change = true;
+          console.log('link changed');
           var links =  panorama.getLinks();
            var is_found=false;
           for(var i  in links){
@@ -50,6 +57,7 @@ var current_aY=0; //與正北的夾角
           }
           //都沒找到
           if (!is_found) {
+              is_links_change = false;
               console.log('not found');
               //下一條 path
               path_index+=1;
@@ -64,8 +72,10 @@ var current_aY=0; //與正北的夾角
 
 //用來一直跑的主函式
 function pilot(){
-    console.log('route_index=%s,path_index=%s',route_index,path_index);
+    console.log('route_index=%s,route_length=%s,path_index=%s',route_index,route_data.length,path_index);
     if (route_index >=route_data.length) {
+        console.log('End');
+        is_running=false;
 
     } else {
         $('tr[jsinstance='+route_index+']').css('background-color','#333');
@@ -97,7 +107,17 @@ function pilot(){
                 setupStreetView(new google.maps.LatLng(path.lat(),path.lng())); 
             }else{
                 //改變位置
-                panorama.setPosition(new google.maps.LatLng(path.lat(),path.lng()));
+                console.log('set position:%s,%s',path.lat(),path.lng());
+                streetviewService.getPanoramaByLocation(new google.maps.LatLng(path.lat(),path.lng()),49,function(data,status) {
+                    if (status!= google.maps.StreetViewStatus.OK) {
+                       path_index+=1;
+                       pilot();
+                    } else {
+                        panorama.setPosition(new google.maps.LatLng(path.lat(),path.lng()));
+                    }
+                    
+                });
+                
             }
 
         }
@@ -106,7 +126,7 @@ function pilot(){
 
 //開始導航
 function autopilot () {
-
+    is_running = true;
     pilot();
 
 }
@@ -125,7 +145,7 @@ function calcRoute(){
         if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
             route_data=response.routes[0].legs[0].steps;
-            console.log(route_data);
+//             console.log(route_data);
             start_pos = response.routes[0].legs[0].start_location;
             setTimeout(function(){
                 map.setZoom(19);
