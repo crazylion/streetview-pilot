@@ -4,17 +4,29 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 <title>Google Maps JavaScript API Example: Street View Layer</title>
 <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
-<script src='js/map.js'></script>
 </head>
-<body onload="initialize()">
+<body>
     <div>
-    從<input type="text" name="from_pos" value="" id="from_pos"/> 
-    到 <input type='text' name='to_pos' value='' id='to_pos'/>
+    從<input type="text" name="from_pos" value="台北車站,台灣" id="from_pos"/> 
+    到 <input type='text' name='to_pos' value='日本' id='to_pos'/>
+    <br/>
+    動畫間隔 :
+    
+    <select id='sec'>
+        <option value='1000'>1</option>
+        <option value='2000'>2</option>
+        <option value='3000'>3</option>
+        <option value='4000'>4</option>
+    </select>
+    秒
+    <input type='button' name='開始跑' value='開始跑'  id='run' />
 </div>
   <div id="map_canvas" style="float:left;width: 400px; height: 300px"></div>
   <div id="pano" style="float:left;width: 400px; height: 300px;"></div>
   <div id="directionsPanel" style="float:left;width:320px;"></div>
+  <textarea id='img_url_list'></textarea>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript" charset="utf-8"></script> 
+<script src='js/map.js'></script>
 <script type="text/javascript" language="javascript" charset="utf-8">
 //<![CDATA[
 $(document).ready(function(){

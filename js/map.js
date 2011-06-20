@@ -13,7 +13,10 @@ if(typeof console === "undefined") {
   var is_setup_streetview=false;
   var is_running = false;  //設定是否有在跑，因為 links_changed 事件如果在沒有location的地方不會觸發
   var is_links_change=false;
-var current_aY=0; //與正北的夾角
+  var current_aY=0; //與正北的夾角
+  var interval=2000;
+
+  var $img_url_list = $('#img_url_list');
 
 
 
@@ -48,7 +51,8 @@ var current_aY=0; //與正北的夾角
                       pops.heading = link.heading;
                       panorama.setPano(link.pano);
                       map.panTo(panorama.getPosition());
-                  },2000);
+                      $img_url_list.append("http://cbk0.googleapis.com/cbk?output=tile&panoid="+link.pano+"&zoom=4&x=6&y=3&cb_client=apiv3&fover=2&onerr=3&v=4\n")
+                  },interval);
                   break;
 
               } else {
@@ -164,12 +168,32 @@ function initialize() {
     };
     map = new google.maps.Map(
             document.getElementById("map_canvas"), mapOptions);
-    calcRoute();
     var lat=42.345573;
     var lng= -71.098326;
 
-    directionsDisplay.setMap(map);
-    directionsDisplay.setPanel(document.getElementById("directionsPanel"));
 
 
 }
+
+$(document).ready(function() {
+    directionsDisplay = new google.maps.DirectionsRenderer();
+    var mapOptions = {
+        center: start_pos,
+        zoom: 19,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    map = new google.maps.Map(
+            document.getElementById("map_canvas"), mapOptions);
+    var lat=42.345573;
+    var lng= -71.098326;
+
+    $('#run').click(function() {
+        start_location=$('#from_pos').val();
+        end_location =$('#to_pos').val();
+        interval = parseInt($('#sec').val());
+        calcRoute();
+        directionsDisplay.setMap(map);
+        directionsDisplay.setPanel(document.getElementById("directionsPanel"));
+        
+    });
+});
