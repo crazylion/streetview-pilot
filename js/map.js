@@ -88,14 +88,42 @@ if(typeof console === "undefined") {
       is_setup_streetview=true;
   }
 
+
+//計算跟y軸的夾角，正北方
+function count_angle (x1,y1,x2,y2) {
+            //算出方程式
+            var m = (y2-y1)/(x2-x1);
+            var xL = Math.abs(x1-x2);
+            var yL = Math.abs(y1-y2);
+            var aX = Math.atan(yL/xL)* 180/Math.PI;
+            var aY=aX+90;
+            if (isNaN(aY)) {
+                aY=180;
+            }
+            return aY;
+}
+
+
 //用來一直跑的主函式
 function pilot(){
     console.log('route_index=%s,route_length=%s,path_index=%s',route_index,route_data.length,path_index);
     if (route_index >=route_data.length) {
         console.log('End');
         is_running=false;
-
-    } else {
+        
+    }else if(route_index == route_data.length-1){
+        console.log('-2');
+        //最後直接走完全的path
+        console.log(route_data[route_index]);
+        var position = route_data[route_index];
+        var path = position.path[path_index];
+        path_index=0;
+        console.log(path.lat());
+        console.log(path.lng());
+        panorama.setPosition(new google.maps.LatLng(path.lat(),path.lng()));
+    
+    }
+    else {
         $('tr[jsinstance='+route_index+']').css('background-color','#333');
         var position = route_data[route_index];
         if (path_index >= position.path.length) {
@@ -111,8 +139,6 @@ function pilot(){
             } else {
                 next_path = route_data[route_index+1].path[0];
             }
-            //算出方程式
-            var m = (next_path.lat()-path.lat())/(next_path.lng()-path.lng());
             //算出夾角
             var m = (next_path.lat()-path.lat())/(next_path.lng()-path.lng());
             var xL = Math.abs(path.lng()-next_path.lng());
@@ -179,7 +205,7 @@ function calcRoute(){
         if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
             route_data=response.routes[0].legs[0].steps;
-//             console.log(route_data);
+            console.log(route_data);
             start_pos = response.routes[0].legs[0].start_location;
             setTimeout(function(){
                 map.setZoom(19);
@@ -238,7 +264,6 @@ $(document).ready(function() {
            drive_type= google.maps.DirectionsTravelMode.WALKING; 
         }
 
-//         interval=500;
         calcRoute();
         directionsDisplay.setMap(map);
         directionsDisplay.setPanel(document.getElementById("directionsPanel"));
