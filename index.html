@@ -21,20 +21,35 @@
     秒
     <input type='button' name='開始跑' value='開始跑'  id='run' />
 </div>
-  <div id="map_canvas" style="float:left;width: 400px; height: 300px"></div>
-  <div id="pano" style="float:left;width: 400px; height: 300px;"></div>
-  <div id="directionsPanel" style="float:left;width:320px;"></div>
-  <textarea id='img_url_list'></textarea>
+<table>
+    <tr>
+    	<td>Map</td>
+    	<td>StreetView</td>
+    	<td>Direction</td>
+    </tr>
+    <tr>
+        <td>
+            <div id="map_canvas" style="width: 400px; height: 300px"></div>
+        </td>
+        <td>
+            <div id="pano" style="float:left;width: 400px; height: 300px;"></div>
+        </td>
+        <td>
+        
+            <div id='directionsPanel-wrapper' style='width:320px;height:300px;overflow:scroll'>
+                <div id="directionsPanel" style="width:320px;"></div>
+            </div>
+        </td>
+
+        <tr>
+            <td colspan='3'>
+                <h3>街景圖片列表</h3> 
+                <textarea id='img_url_list' style='width:800px;min-height:100px'></textarea>
+            </td>
+        </tr>
+</table>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript" charset="utf-8"></script> 
 <script src='js/map.js'></script>
-<script type="text/javascript" language="javascript" charset="utf-8">
-//<![CDATA[
-$(document).ready(function(){
-        var from='台北車站'        ;
-        var to ='廣州';
-        });
-//]]>
-</script>
 </body>
 </html>
 

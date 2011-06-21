@@ -17,6 +17,9 @@ if(typeof console === "undefined") {
   var interval=2000;
 
   var $img_url_list = $('#img_url_list');
+  var end_position_lat=0; //用來記錄終點的經緯度資料，因為有時候終點不見得在路的最後一點
+  var end_position_lon=0;
+  var end_position = null;
 
 
 
@@ -45,15 +48,24 @@ if(typeof console === "undefined") {
               if (Math.abs(current_aY-link.heading)<5) {
                   console.log('go:%s',i);
                   is_found=true;
-                  setTimeout(function() {
-                      
-                      var pops = panorama.getPov();
-                      pops.heading = link.heading;
-                      panorama.setPano(link.pano);
-                      map.panTo(panorama.getPosition());
-                      $img_url_list.append("http://cbk0.googleapis.com/cbk?output=tile&panoid="+link.pano+"&zoom=4&x=6&y=3&cb_client=apiv3&fover=2&onerr=3&v=4\n")
-                  },interval);
-                  break;
+                console.log('current position=%s,%s End location=%s,%s',panorama.getPosition().lat(),panorama.getPosition().lng(),route_data[route_index].end_location.lat(),route_data[route_index].end_location.lng());
+                  if (Math.abs(panorama.getPosition().lat() - end_position.lat() ) < 0.001 && 
+                      Math.abs(panorama.getPosition().lng() - end_position.lat() ) < 0.001
+                      ) {
+                      console.log('The End');
+                      return;
+                  } else {
+
+                      setTimeout(function() {
+
+                          var pops = panorama.getPov();
+                          pops.heading = link.heading;
+                          panorama.setPano(link.pano);
+                          map.panTo(panorama.getPosition());
+                          $img_url_list.append("http://cbk0.googleapis.com/cbk?output=tile&panoid="+link.pano+"&zoom=4&x=6&y=3&cb_client=apiv3&fover=2&onerr=3&v=4\n")
+                      },interval);
+                      break;
+                  }
 
               } else {
               }
@@ -105,7 +117,22 @@ function pilot(){
             var yL = Math.abs(path.lat()-next_path.lat());
             var aX = Math.atan(yL/xL)* 180/Math.PI;
             var aY=aX+90;
+            if (isNaN(aY)) {
+                aY=180;
+            }
             current_aY=aY;
+
+            if (panorama) {
+                console.log('current position=%s,%s End location=%s,%s',panorama.getPosition().lat(),panorama.getPosition().lng(),route_data[route_index].end_location.lat(),route_data[route_index].end_location.lng());
+            
+            }
+
+            if ( panorama && panorama.getPosition() == route_data[route_index].end_location) {
+                console.log('The End');
+                return ;
+            }
+            end_position = route_data[route_index].end_location;
+
 
             if (!is_setup_streetview) { 
                 setupStreetView(new google.maps.LatLng(path.lat(),path.lng())); 
@@ -191,6 +218,7 @@ $(document).ready(function() {
         start_location=$('#from_pos').val();
         end_location =$('#to_pos').val();
         interval = parseInt($('#sec').val());
+//         interval=500;
         calcRoute();
         directionsDisplay.setMap(map);
         directionsDisplay.setPanel(document.getElementById("directionsPanel"));
