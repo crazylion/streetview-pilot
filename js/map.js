@@ -22,6 +22,8 @@ if(typeof console === "undefined") {
   var end_position = null;
 
 
+  var drive_type = google.maps.DirectionsTravelMode.DRIVING;
+  var is_highway = true;
 
   function setupStreetView (start) {
       var panoramaOptions = {
@@ -170,7 +172,8 @@ function calcRoute(){
     var request = {
         origin:start, 
         destination:end,
-        travelMode: google.maps.DirectionsTravelMode.DRIVING
+        avoidHighways: is_highway,
+        travelMode:  drive_type
     };
     directionsService.route(request, function(response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
@@ -218,6 +221,23 @@ $(document).ready(function() {
         start_location=$('#from_pos').val();
         end_location =$('#to_pos').val();
         interval = parseInt($('#sec').val());
+        var highway = $('#is_highway').val();
+        if (highway=='1') {
+           is_highway=true; 
+        } else {
+           is_highway=false; 
+        }
+
+        var drive = $('#drive_type').val();
+        if (drive=='DRIVING') {
+           drive_type= google.maps.DirectionsTravelMode.DRIVING; 
+        }else if(drive=='BICYCLING'){
+           drive_type= google.maps.DirectionsTravelMode.BICYCLING; 
+        } 
+        else {
+           drive_type= google.maps.DirectionsTravelMode.WALKING; 
+        }
+
 //         interval=500;
         calcRoute();
         directionsDisplay.setMap(map);
