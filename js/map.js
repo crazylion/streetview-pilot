@@ -21,6 +21,8 @@ if(typeof console === "undefined") {
   var end_position_lon=0;
   var end_position = null;
 
+  var timeout_handle=null;
+
 
   var drive_type = google.maps.DirectionsTravelMode.DRIVING;
   var is_highway = true;
@@ -57,8 +59,8 @@ if(typeof console === "undefined") {
                       console.log('The End');
                       return;
                   } else {
-
-                      setTimeout(function() {
+                      clearTimeout(timeout_handle);
+                      timeout_handle = setTimeout(function() {
 
                           var pops = panorama.getPov();
                           pops.heading = link.heading;
@@ -129,7 +131,8 @@ function pilot(){
         if (path_index >= position.path.length) {
             path_index=0; 
             route_index++;
-            setTimeout(pilot,2000);
+            clearTimeout(timeout_handle);
+            timeout_handle = setTimeout(pilot,2000);
         } else {
             var path = position.path[path_index];
             var next_path=null;
@@ -207,28 +210,14 @@ function calcRoute(){
             route_data=response.routes[0].legs[0].steps;
             console.log(route_data);
             start_pos = response.routes[0].legs[0].start_location;
-            setTimeout(function(){
+            clearTimeout(timeout_handle);
+            timeout_handle = setTimeout(function(){
                 map.setZoom(19);
                 map.setCenter(response.routes[0].legs[0].start_location);
                 autopilot();
             },1000);
         }
     });
-}
-function initialize() {
-    directionsDisplay = new google.maps.DirectionsRenderer();
-    var mapOptions = {
-        center: start_pos,
-        zoom: 19,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    map = new google.maps.Map(
-            document.getElementById("map_canvas"), mapOptions);
-    var lat=42.345573;
-    var lng= -71.098326;
-
-
-
 }
 
 $(document).ready(function() {
